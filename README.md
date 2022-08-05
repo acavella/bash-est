@@ -23,9 +23,9 @@ Prior to expiration of the original public certificate, a reenroll request is su
 8. Generate new openssl pkcs12 (openssl pkcs12 -export -inkey key.pem -in result.pem -name $cnValue -out final_output.p12
 
 ## Variables
-$cnValue : local variable that contains client CN value.
-$estCAuri : local variable that contains EST CA Trust URI.
-$estRNuri : local variable that contains EST reenroll URI.
+- $cnValue : local variable that contains client CN value.
+- $estCAuri : local variable that contains EST CA Trust URI.
+- $estRNuri : local variable that contains EST reenroll URI.
 
 ## Contact
 Tony Cavella 
