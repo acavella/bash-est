@@ -2,10 +2,10 @@
 Bash script to generate client side EST simple reenroll requests
 
 ## Requirements
+- Bash
 - curl
-- openssl
-- bash
-- CertAgent 7.0.9.6
+- OpenSSL
+- CertAgent 7.0.9.x
 
 ## Background
 Initial device certificate (RSA4096 / SHA384) is issued from the Certificate Authority through a manual enrollment and issuance process. The public certificate is combined with the private key and 3DES encrypted to form a PKCS#12 (PFX / P12). The system administrator installs the P12 on the device.
