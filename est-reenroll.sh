@@ -26,15 +26,11 @@ cacert="${__certs}/trust.pem"
 
 
 # User Defined Variables
-capuburi="https://twsldc205.gray.bah-csfc.lab:443/.well-known/est/eud"
-cainturi="https://twsldc205.gray.bah-csfc.lab:8443/.well-known/est/eud"
-cnvalue="yourcn"
+puburi="https://twsldc205.gray.bah-csfc.lab:443/.well-known/est/eud"
+esturi="https://twsldc205.gray.bah-csfc.lab:8443/.well-known/est/eud"
+cnvalue=${1}
+p12pass=${2}
 origp12="${__certs}/${cnvalue}.p12"
-p12pass="yourpassword"
-
-
-# Load variables from external config
-#source ${__dir}/est.conf
 
 ######## FUNCTIONS #########
 # All operations are built into individual functions for better readibility
@@ -42,9 +38,27 @@ p12pass="yourpassword"
 
 show_version() {
     printf "EST-SimpleReenroll version ${VERSION}"
-    printf "Bash  version ${BASH_VERSION}"
+    printf "Bash version ${BASH_VERSION}"
     printf "${DETECTED_OS}"
     exit 0
+}
+
+make_temporary_log() {
+    # Create a random temporary file for the log
+    TEMPLOG=$(mktemp /tmp/est_temp.XXXXXX)
+    # Open handle 3 for templog
+    # https://stackoverflow.com/questions/18460186/writing-outputs-to-log-file-and-console
+    exec 3>${TEMPLOG}
+    # Delete templog, but allow for addressing via file handle
+    # This lets us write to the log without having a temporary file on the drive, which
+    # is meant to be a security measure so there is not a lingering file on the drive during the install process
+    rm ${TEMPLOG}
+}
+
+copy_to_run_log() {
+    # Copy the contents of file descriptor 3 into the log
+    cat /proc/$$/fd/3 > "${log}"
+    chmod 644 "${log}"
 }
 
 get_cacerts() {
@@ -53,12 +67,18 @@ get_cacerts() {
     local tempp7b=$(mktemp /tmp/tmpp7b.XXXXXX)
     local response=$(mktemp /tmp/resp.XXXXXX)
 
-    curl ${capuburi}/cacerts -v -o ${response} -k --tlsv1.2	
+    # Request trust
+    curl ${puburi}/cacerts -v -o ${response} -k --tlsv1.2	
+
+    # Build PKCS#7
     echo -e ${pre} > ${tempp7b}
     cat ${response} >> ${tempp7b}
     echo -e ${post} >> ${tempp7b}
+    
+    # Convert to PEM
     openssl pkcs7 -print_certs -in ${tempp7b} -out ${cacert}
 
+    # Remove temporary files
     rm ${tempp7b}
     rm ${response}
 }
@@ -66,27 +86,44 @@ get_cacerts() {
 reenroll() {
     local pre="-----BEGIN PKCS7-----"
     local post="-----END PKCS7-----"
+    local response=$(mktemp /tmp/resp.XXXXXX)
+    local tempp7b=$(mktemp /tmp/tmpp7b.XXXXXX)
+    local temppem=$(mktemp /tmp/tmppem.XXXXXX)
 
+    # Convert original PKCS#12 to PEM
     openssl pkcs12 -in ${origp12} -out client.pem -clcerts -nodes -password pass:${p12pass}
-    openssl pkcs12 -in ${origp12} -out key.pem -nodes -password pass:${p12pass}
-    openssl req -new -subj "/C=US/CN=${cnvalue}" -key key.pem -out req.pem
-    curl ${cainturi}/simplereenroll --cert client.pem -v -o output.p7 --cacert ${cacert} --data-binary @req.pem -H "Content-Type: application/pkcs10" --tlsv1.2
-   # openssl pkcs7 -in output.p7b -inform DER -out result.pem -print_certs
-    echo -e ${pre} > result.p7b
-    cat output.p7 >> result.p7b
-    echo -e ${post} >> result.p7b
-    openssl pkcs7 -in result.p7b -out result.pem -print_certs
-    openssl pkcs12 -export -inkey key.pem -in result.pem -name ${cnvalue} -out ${cnvalue}_new.p12 -certfile ${cacert} -password pass:$p12pass
+
+    # Generate CSR from client PEM
+    openssl req -new -subj "/C=US/CN=${cnvalue}" -key client.pem -out req.pem
+
+    # Send CSR and request new PKCS#7
+    curl ${esturi}/simplereenroll --cert client.pem -v -o ${response} --cacert ${cacert} --data-binary @req.pem -H "Content-Type: application/pkcs10" --tlsv1.2
+
+    # Build PKCS#7 from response
+    echo -e ${pre} > ${tempp7b}
+    cat ${response} >> ${tempp7b}
+    echo -e ${post} >> ${tempp7b}
+
+    # Convert PKCS#7 to PEM
+    openssl pkcs7 -in ${tempp7b} -out ${temppem} -print_certs
+
+    # Build new client PKCS#12
+    openssl pkcs12 -export -inkey client.pem -in ${temppem} -name ${cnvalue} -out ${cnvalue}_new.p12 -certfile ${cacert} -password pass:$p12pass
+
+    # Remove temporary files
+    rm ${response}
+    rm ${tempp7b}
+    rm ${temppem}
+    rm client.pem
 }
 
-clean() {
-    rm -rf key.pem
-    rm -rf client.pem
-    rm -rf result.p7b
-    rm -rf output.p7
+main() {
+    get_cacerts
+    reenroll
 }
 
-get_cacerts
-reenroll
-clean
+make_temporary_log
+main | tee -a /proc/$$/fd/3
+copy_to_run_log
+
 exit 0
