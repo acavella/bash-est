@@ -12,6 +12,15 @@ Initial device certificate (RSA4096 / SHA384) is issued from the Certificate Aut
 
 Prior to expiration of the original public certificate, a reenroll request is submit via the EST mechanism. The original client certificate is used to provide certificate authorization during the enrollment. A new certificate request is generated from the original private key and must have matching Common Name (CN) as the client certificate.
 
+## Usage
+1. Download the latest tagged release and extract it to your home directory
+or 
+2. Clone the repo to your home directory `git clone git@github.boozallencsn.com:csfc-lab/est-simplereenroll.git`
+3. Edit the following variables in `est-reenroll.sh`
+    i. `puburi` - set to the EST /cacerts FQDN
+    ii. `esturi` - set to the EST /simplereenroll FQDN
+    iii. `origp12` - set to the path of the original client p12 to be renewed
+4. Execute the following: `./est-reenroll <p12-cn> <p12-password>`
 ## Process Diagram
 ```
 ┌────────────┐                     ┌────────────┐                      ┌────────────┐
