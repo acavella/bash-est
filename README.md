@@ -17,9 +17,9 @@ Prior to expiration of the original public certificate, a reenroll request is su
 or 
 2. Clone the repo to your home directory `git clone git@github.boozallencsn.com:csfc-lab/est-simplereenroll.git`
 3. Edit the following variables in `est-reenroll.sh`
-    i. `puburi` - set to the EST /cacerts FQDN
-    ii. `esturi` - set to the EST /simplereenroll FQDN
-    iii. `origp12` - set to the path of the original client p12 to be renewed
+    1. `puburi` - set to the EST /cacerts FQDN
+    2. `esturi` - set to the EST /simplereenroll FQDN
+    3. `origp12` - set to the path of the original client p12 to be renewed
 4. Execute the following: `./est-reenroll <p12-cn> <p12-password>`
 ## Process Diagram
 ```
