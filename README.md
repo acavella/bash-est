@@ -13,59 +13,61 @@ Initial device certificate (RSA4096 / SHA384) is issued from the Certificate Aut
 Prior to expiration of the original public certificate, a reenroll request is submit via the EST mechanism. The original client certificate is used to provide certificate authorization during the enrollment. A new certificate request is generated from the original private key and must have matching Common Name (CN) as the client certificate.
 
 ## Process Diagram
- ┌────────────┐                                          ┌────────────┐                                         ┌────────────┐
- │ EST Client │                                          │ EST Server │                                         │   EST CA   │
- └─────┬──────┘                                          └──────┬─────┘                                         └──────┬─────┘
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │            (EST) Request certification                 │                                                      │
-       ├───────────────────────────────────────────────────────►│                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                    Trust chain                         │                                                      │
-       │◄───────────────────────────────────────────────────────┤                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       ├───────────────────┐                                    │                                                      │
-       │                   │                                    │                                                      │
-       │                   │Validate chain                      │                                                      │
-       │◄──────────────────┘                                    │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       ├───────────────────┐                                    │                                                      │
-       │                   │                                    │                                                      │
-       │                   │Generate key and CSR                │                                                      │
-       │◄──────────────────┘                                    │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │           (EST) PKCS#10 certificate request            │                                                      │
-       ├───────────────────────────────────────────────────────►│                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        ├───────────────────┐                                  │
-       │                                                        │                   │Validate client credentials       │
-       │                                                        │                   │(Certificate auth)                │
-       │                                                        │◄──────────────────┘                                  │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                 Request certificate                  │
-       │                                                        ├─────────────────────────────────────────────────────►│
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                      Certificate                     │
-       │                                                        │◄─────────────────────────────────────────────────────┤
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                    PKCS#7 Certificate                  │                                                      │
-       │◄───────────────────────────────────────────────────────┤                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
-       │                                                        │                                                      │
+```
+┌────────────┐                                ┌────────────┐                                 ┌────────────┐
+│ EST Client │                                │ EST Server │                                 │   EST CA   │
+└─────┬──────┘                                └──────┬─────┘                                 └──────┬─────┘
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │        (EST) Request certification           │                                              │
+      ├─────────────────────────────────────────────►│                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │                  Trust chain                 │                                              │
+      │◄─────────────────────────────────────────────┤                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      ├───────────────────┐                          │                                              │
+      │                   │                          │                                              │
+      │                   │Validate chain            │                                              │
+      │◄──────────────────┘                          │                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      ├───────────────────┐                          │                                              │
+      │                   │                          │                                              │
+      │                   │Generate key and CSR      │                                              │
+      │◄──────────────────┘                          │                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │     (EST) PKCS#10 certificate request        │                                              │
+      ├─────────────────────────────────────────────►│                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              ├───────────┐                                  │
+      │                                              │           │Validate client credentials       │
+      │                                              │           │(Certificate auth)                │
+      │                                              │◄──────────┘                                  │
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              │         Request certificate                  │
+      │                                              ├─────────────────────────────────────────────►│
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              │              Certificate                     │
+      │                                              │◄─────────────────────────────────────────────┤
+      │                                              │                                              │
+      │                                              │                                              │
+      │               PKCS#7 Certificate             │                                              │
+      │◄─────────────────────────────────────────────┤                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+      │                                              │                                              │
+```
 
 ## Variables
 - __dir : base script directory
