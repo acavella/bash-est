@@ -16,6 +16,7 @@ set -u
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __certs=${__dir}/certs
 
+
 # Global Variables
 VERSION="0.0.3"
 DETECTED_OS=$(cat /etc/os-release | grep PRETTY_NAME | cut -d '=' -f2- | tr -d '"')
@@ -23,7 +24,7 @@ DETECTED_OS=$(cat /etc/os-release | grep PRETTY_NAME | cut -d '=' -f2- | tr -d '
 # Script Variables
 dtg=$(date '+%s')
 cacert="${__certs}/trust.pem"
-
+log=${__dir}/log/est-${dtg}
 
 # User Defined Variables
 cauri="https://twsldc204.gray.bah-csfc.lab"
@@ -125,7 +126,7 @@ reenroll() {
 }
 
 onstart() {
-    if [[ ${1} = "version" ]] 
+    if [[ ${origp12} = "version" ]] 
     then
         show_version
     fi
