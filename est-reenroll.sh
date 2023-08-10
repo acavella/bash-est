@@ -28,9 +28,9 @@ cacert="${__certs}/trust.pem"
 # User Defined Variables
 puburi="https://twsldc205.gray.bah-csfc.lab:443/.well-known/est/eud"
 esturi="https://twsldc205.gray.bah-csfc.lab:8443/.well-known/est/eud"
-cnvalue=${1}
+origp12=${1}
 p12pass=${2}
-origp12="${__certs}/${cnvalue}.p12"
+
 
 ######## FUNCTIONS #########
 # All operations are built into individual functions for better readibility
@@ -83,15 +83,20 @@ get_cacerts() {
     rm ${response}
 }
 
+extract_pkcs12() {
+    echo "Convert original PKCS#12 to PEM"
+    openssl pkcs12 -in ${origp12} -out client.pem -clcerts -nodes -password pass:${p12pass}
+
+    echo "Retrieve commonName from PEM"
+    cnvalue=$(openssl x509 -noout -subject -in client.pem -nameopt multiline | grep commonName | awk '{ print $3 }')
+}
+
 reenroll() {
     local pre="-----BEGIN PKCS7-----"
     local post="-----END PKCS7-----"
     local response=$(mktemp /tmp/resp.XXXXXX)
     local tempp7b=$(mktemp /tmp/tmpp7b.XXXXXX)
     local temppem=$(mktemp /tmp/tmppem.XXXXXX)
-
-    # Convert original PKCS#12 to PEM
-    openssl pkcs12 -in ${origp12} -out client.pem -clcerts -nodes -password pass:${p12pass}
 
     # Generate CSR from client PEM
     openssl req -new -subj "/C=US/CN=${cnvalue}" -key client.pem -out req.pem
@@ -119,6 +124,7 @@ reenroll() {
 
 main() {
     get_cacerts
+    extract_pkcs12
     reenroll
 }
 
