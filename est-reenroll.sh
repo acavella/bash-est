@@ -33,7 +33,7 @@ caid="eud"
 puburi="${cauri}:${publicport}/.well-known/est/${caid}"
 esturi="${cauri}:${estport}/.well-known/est/${caid}"
 origp12=${1}
-p12pass=${2}
+p12pass=${2:-}
 
 
 ######## FUNCTIONS ######### 
