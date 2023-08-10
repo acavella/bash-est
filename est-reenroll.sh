@@ -104,21 +104,21 @@ reenroll() {
     echo "Generating CSR from original client key"
     openssl req -new -subj "/C=US/CN=${cnvalue}" -key client.pem -out req.pem
 
-    # Send CSR and request new PKCS#7
+    echo "Sending Simple Reenroll request to EST server"
     curl ${esturi}/simplereenroll --cert client.pem -v -o ${response} --cacert ${cacert} --data-binary @req.pem -H "Content-Type: application/pkcs10" --tlsv1.2
 
-    # Build PKCS#7 from response
+    echo "Build valid PKCS#7 from response"
     echo -e ${pre} > ${tempp7b}
     cat ${response} >> ${tempp7b}
     echo -e ${post} >> ${tempp7b}
 
-    # Convert PKCS#7 to PEM
+    echo "Convert original PKCS#7 to PEM"
     openssl pkcs7 -in ${tempp7b} -out ${temppem} -print_certs
 
-    # Build new client PKCS#12
+    echo "Build new PKCS#12"
     openssl pkcs12 -export -inkey client.pem -in ${temppem} -name ${cnvalue} -out ${cnvalue}_new.p12 -certfile ${cacert} -password pass:$p12pass
 
-    # Remove temporary files
+    echo "Cleanup temporary files"
     rm ${response}
     rm ${tempp7b}
     rm ${temppem}
