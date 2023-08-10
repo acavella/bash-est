@@ -16,30 +16,33 @@ set -u
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __certs=${__dir}/certs
 
+
 # Global Variables
-VERSION="0.0.2"
+VERSION="0.0.3"
 DETECTED_OS=$(cat /etc/os-release | grep PRETTY_NAME | cut -d '=' -f2- | tr -d '"')
 
 # Script Variables
 dtg=$(date '+%s')
 cacert="${__certs}/trust.pem"
-
+log=${__dir}/log/est-${dtg}
 
 # User Defined Variables
-puburi="https://twsldc205.gray.bah-csfc.lab:443/.well-known/est/eud"
-esturi="https://twsldc205.gray.bah-csfc.lab:8443/.well-known/est/eud"
-cnvalue=${1}
-p12pass=${2}
-origp12="${__certs}/${cnvalue}.p12"
+cauri="https://twsldc204.gray.bah-csfc.lab"
+publicport="443"
+estport="8443"
+caid="eud"
+puburi="${cauri}:${publicport}/.well-known/est/${caid}"
+esturi="${cauri}:${estport}/.well-known/est/${caid}"
+origp12=${1}
+p12pass=${2:-}
 
-######## FUNCTIONS #########
-# All operations are built into individual functions for better readibility
-# and management.  
+
+######## FUNCTIONS ######### 
 
 show_version() {
-    printf "EST-SimpleReenroll version ${VERSION}"
-    printf "Bash version ${BASH_VERSION}"
-    printf "${DETECTED_OS}"
+    printf "EST-SimpleReenroll version ${VERSION}\n"
+    printf "Bash version ${BASH_VERSION}\n"
+    printf "${DETECTED_OS}\n\n"
     exit 0
 }
 
@@ -67,20 +70,28 @@ get_cacerts() {
     local tempp7b=$(mktemp /tmp/tmpp7b.XXXXXX)
     local response=$(mktemp /tmp/resp.XXXXXX)
 
-    # Request trust
+    echo "Request CA trust files"
     curl ${puburi}/cacerts -v -o ${response} -k --tlsv1.2	
 
-    # Build PKCS#7
+    echo "Build valid PKCS#7 from response"
     echo -e ${pre} > ${tempp7b}
     cat ${response} >> ${tempp7b}
     echo -e ${post} >> ${tempp7b}
     
-    # Convert to PEM
+    echo "Convert original PKCS#7 to PEM"
     openssl pkcs7 -print_certs -in ${tempp7b} -out ${cacert}
 
-    # Remove temporary files
+    echo "Cleanup temporary files"
     rm ${tempp7b}
     rm ${response}
+}
+
+extract_pkcs12() {
+    echo "Convert original PKCS#12 to PEM"
+    openssl pkcs12 -in ${origp12} -out client.pem -clcerts -nodes -password pass:${p12pass}
+
+    echo "Retrieve commonName from PEM"
+    cnvalue=$(openssl x509 -noout -subject -in client.pem -nameopt multiline | grep commonName | awk '{ print $3 }')
 }
 
 reenroll() {
@@ -90,35 +101,41 @@ reenroll() {
     local tempp7b=$(mktemp /tmp/tmpp7b.XXXXXX)
     local temppem=$(mktemp /tmp/tmppem.XXXXXX)
 
-    # Convert original PKCS#12 to PEM
-    openssl pkcs12 -in ${origp12} -out client.pem -clcerts -nodes -password pass:${p12pass}
-
-    # Generate CSR from client PEM
+    echo "Generating CSR from original client key"
     openssl req -new -subj "/C=US/CN=${cnvalue}" -key client.pem -out req.pem
 
-    # Send CSR and request new PKCS#7
+    echo "Sending Simple Reenroll request to EST server"
     curl ${esturi}/simplereenroll --cert client.pem -v -o ${response} --cacert ${cacert} --data-binary @req.pem -H "Content-Type: application/pkcs10" --tlsv1.2
 
-    # Build PKCS#7 from response
+    echo "Build valid PKCS#7 from response"
     echo -e ${pre} > ${tempp7b}
     cat ${response} >> ${tempp7b}
     echo -e ${post} >> ${tempp7b}
 
-    # Convert PKCS#7 to PEM
+    echo "Convert original PKCS#7 to PEM"
     openssl pkcs7 -in ${tempp7b} -out ${temppem} -print_certs
 
-    # Build new client PKCS#12
+    echo "Build new PKCS#12"
     openssl pkcs12 -export -inkey client.pem -in ${temppem} -name ${cnvalue} -out ${cnvalue}_new.p12 -certfile ${cacert} -password pass:$p12pass
 
-    # Remove temporary files
+    echo "Cleanup temporary files"
     rm ${response}
     rm ${tempp7b}
     rm ${temppem}
     rm client.pem
 }
 
+onstart() {
+    if [[ ${origp12} = "version" ]] 
+    then
+        show_version
+    fi
+}
+
 main() {
+    onstart
     get_cacerts
+    extract_pkcs12
     reenroll
 }
 
