@@ -124,7 +124,15 @@ reenroll() {
     rm client.pem
 }
 
+onstart() {
+    if [[ ${1} = "version" ]] 
+    then
+        show_version
+    fi
+}
+
 main() {
+    onstart
     get_cacerts
     extract_pkcs12
     reenroll
