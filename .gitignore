@@ -1,1 +1,2 @@
-/log/est*
+# Exclude log files
+log/est*
