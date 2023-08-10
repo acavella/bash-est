@@ -17,7 +17,7 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __certs=${__dir}/certs
 
 # Global Variables
-VERSION="0.0.2"
+VERSION="0.0.3"
 DETECTED_OS=$(cat /etc/os-release | grep PRETTY_NAME | cut -d '=' -f2- | tr -d '"')
 
 # Script Variables
