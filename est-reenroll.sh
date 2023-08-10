@@ -40,9 +40,9 @@ p12pass=${2:-}
 ######## FUNCTIONS ######### 
 
 show_version() {
-    printf "EST-SimpleReenroll version ${VERSION}"
-    printf "Bash version ${BASH_VERSION}"
-    printf "${DETECTED_OS}"
+    printf "EST-SimpleReenroll version ${VERSION}\n"
+    printf "Bash version ${BASH_VERSION}\n"
+    printf "${DETECTED_OS}\n\n"
     exit 0
 }
 
