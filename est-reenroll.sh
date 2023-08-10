@@ -26,15 +26,17 @@ cacert="${__certs}/trust.pem"
 
 
 # User Defined Variables
-puburi="https://twsldc205.gray.bah-csfc.lab:443/.well-known/est/eud"
-esturi="https://twsldc205.gray.bah-csfc.lab:8443/.well-known/est/eud"
+cauri="https://twsldc204.gray.bah-csfc.lab"
+publicport="443"
+estport="8443"
+caid="eud"
+puburi="${cauri}:${publicport}/.well-known/est/${caid}"
+esturi="${cauri}:${estport}/.well-known/est/${caid}"
 origp12=${1}
 p12pass=${2}
 
 
-######## FUNCTIONS #########
-# All operations are built into individual functions for better readibility
-# and management.  
+######## FUNCTIONS ######### 
 
 show_version() {
     printf "EST-SimpleReenroll version ${VERSION}"
