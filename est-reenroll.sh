@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# est-reenroll: Client side script to perform EST simple reenroll request
-# Version 0.0.1
-# 2022-08-05 Tony Cavella (cavella_tony@bah.com)
-# https://github.boozallencsn.com/csfc-lab/est-simplereenroll
+# Description: est-reenroll: Client side script to perform EST simple reenroll request
+# License: MIT
+# Author: Tony Cavella (cavella_tony@bah.com)
+# Repo: https://github.boozallencsn.com/csfc-lab/est-simplereenroll
 
 # -e option instructs bash to immediately exit if any command [1] has a non-zero exit status
 # -u option instructs bash to exit on unset variables (useful for debugging)
