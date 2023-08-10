@@ -70,18 +70,18 @@ get_cacerts() {
     local tempp7b=$(mktemp /tmp/tmpp7b.XXXXXX)
     local response=$(mktemp /tmp/resp.XXXXXX)
 
-    # Request trust
+    echo "Request CA trust files"
     curl ${puburi}/cacerts -v -o ${response} -k --tlsv1.2	
 
-    # Build PKCS#7
+    echo "Build valid PKCS#7 from response"
     echo -e ${pre} > ${tempp7b}
     cat ${response} >> ${tempp7b}
     echo -e ${post} >> ${tempp7b}
     
-    # Convert to PEM
+    echo "Convert original PKCS#7 to PEM"
     openssl pkcs7 -print_certs -in ${tempp7b} -out ${cacert}
 
-    # Remove temporary files
+    echo "Cleanup temporary files"
     rm ${tempp7b}
     rm ${response}
 }
