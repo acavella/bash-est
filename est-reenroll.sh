@@ -101,7 +101,7 @@ reenroll() {
     local tempp7b=$(mktemp /tmp/tmpp7b.XXXXXX)
     local temppem=$(mktemp /tmp/tmppem.XXXXXX)
 
-    # Generate CSR from client PEM
+    echo "Generating CSR from original client key"
     openssl req -new -subj "/C=US/CN=${cnvalue}" -key client.pem -out req.pem
 
     # Send CSR and request new PKCS#7
