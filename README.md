@@ -1,5 +1,5 @@
-# EST - Simple Reenroll
-Bash script to generate client side EST simple reenroll requests
+# Trusted Core - EST Client
+An EST client written in Bash
 
 ## Requirements
 - Bash
