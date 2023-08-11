@@ -19,7 +19,7 @@ __certs=${__dir}/certs
 
 
 # Global Variables
-VERSION="0.0.3"
+VERSION="1.0.0-beta.1"
 DETECTED_OS=$(cat /etc/os-release | grep PRETTY_NAME | cut -d '=' -f2- | tr -d '"')
 
 # Script Variables
