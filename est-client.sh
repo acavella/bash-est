@@ -42,8 +42,13 @@ p12pass=${2:-}
 ######## FUNCTIONS ######### 
 
 show_version() {
+    local OPENSSL_VERSION=$(openssl version | awk '{print $2}')
+    local CURL_VERSION=$(curl --version | awk 'FNR == 1 {print $2}')
+    
     printf "EST-SimpleReenroll version ${VERSION}\n"
     printf "Bash version ${BASH_VERSION}\n"
+    printf "OpenSSL version ${OPENSSL_VERSION}\n"
+    printf "Curl version ${CURL_VERSION}\n"
     printf "${DETECTED_OS}\n\n"
     exit 0
 }
