@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # est-client.sh
-# Description: EST client written in Bash
+# Description: RFC 7030 compliant EST client written in Bash
 # License: MIT
 # Author: Tony Cavella (tony@cavella.com)
 # Repo: https://github.com/acavella/bash-est
@@ -19,7 +19,7 @@ __certs=${__dir}/certs
 __work=$(mktemp -d)
 
 # Global Variables
-VERSION="1.0.0-beta.1"
+VERSION="2.0.0"
 DETECTED_OS=$(cat /etc/os-release | grep PRETTY_NAME | cut -d '=' -f2- | tr -d '"')
 
 # Script Variables
