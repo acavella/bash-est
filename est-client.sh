@@ -16,6 +16,7 @@ set -u
 # Base directories
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __certs=${__dir}/certs
+__work=$(mktemp -d)
 
 
 # Global Variables
