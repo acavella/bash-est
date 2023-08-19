@@ -28,13 +28,14 @@ cacert="${__certs}/trust.pem"
 log=${__dir}/log/est-${dtg}
 
 # User Defined Variables
-cauri="https://twsldc204.gray.bah-csfc.lab"
+source config
+
+# CA Variables
 publicport="443"
 estport="8443"
-caid="eud"
-puburi="${cauri}:${publicport}/.well-known/est/${caid}"
-esturi="${cauri}:${estport}/.well-known/est/${caid}"
-origp12=${1}
+puburi="https://${cafqdn}:${publicport}/.well-known/est/${caprofile}"
+esturi="https://${cafqdn}:${estport}/.well-known/est/${caprofile}"
+p12path=${1}
 p12pass=${2:-}
 
 
@@ -89,7 +90,7 @@ get_cacerts() {
 
 extract_pkcs12() {
     echo "Convert original PKCS#12 to PEM"
-    openssl pkcs12 -in ${origp12} -out client.pem -clcerts -nodes -password pass:${p12pass}
+    openssl pkcs12 -in ${p12path} -out client.pem -clcerts -nodes -password pass:${p12pass}
 
     echo "Retrieve commonName from PEM"
     cnvalue=$(openssl x509 -noout -subject -in client.pem -nameopt multiline | grep commonName | awk '{ print $3 }')
@@ -127,7 +128,7 @@ reenroll() {
 }
 
 onstart() {
-    if [[ ${origp12} = "version" ]] 
+    if [[ ${p12path} = "version" ]] 
     then
         show_version
     fi
