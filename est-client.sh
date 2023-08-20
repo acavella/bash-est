@@ -74,7 +74,7 @@ copy_to_run_log() {
 get_cacerts() {
     local pre="-----BEGIN PKCS7-----"
     local post="-----END PKCS7-----"
-    local tempp7b="${__work}/
+    local tempp7b=$(touch ${__work}/catrust.p7b)
 
     echo "Request CA trust files"
     local response=$(curl ${puburi}/cacerts -v -o ${response} -k --tlsv1.2)
@@ -86,9 +86,6 @@ get_cacerts() {
     
     echo "Convert original PKCS#7 to PEM"
     openssl pkcs7 -print_certs -in ${tempp7b} -out ${cacert}
-
-    echo "Cleanup temporary files"
-    rm ${tempp7b}
 
 }
 
@@ -138,11 +135,17 @@ onstart() {
     fi
 }
 
+clean() {
+    echo "Cleaning up working directory."
+    rm -rf ${__work}
+}
+
 main() {
     onstart
     get_cacerts
     extract_pkcs12
     reenroll
+    clean
 }
 
 make_temporary_log
