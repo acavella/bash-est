@@ -74,11 +74,10 @@ copy_to_run_log() {
 get_cacerts() {
     local pre="-----BEGIN PKCS7-----"
     local post="-----END PKCS7-----"
-    local tempp7b=$(mktemp /tmp/tmpp7b.XXXXXX)
-    local response=$(mktemp /tmp/resp.XXXXXX)
+    local tempp7b="${__work}/
 
     echo "Request CA trust files"
-    curl ${puburi}/cacerts -v -o ${response} -k --tlsv1.2	
+    local response=$(curl ${puburi}/cacerts -v -o ${response} -k --tlsv1.2)
 
     echo "Build valid PKCS#7 from response"
     echo -e ${pre} > ${tempp7b}
@@ -90,7 +89,7 @@ get_cacerts() {
 
     echo "Cleanup temporary files"
     rm ${tempp7b}
-    rm ${response}
+
 }
 
 extract_pkcs12() {

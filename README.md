@@ -1,5 +1,5 @@
-# Trusted Core - EST Client
-An EST client written in Bash
+# BASH EST Client
+An RFC 7030 compliant EST client written in Bash
 
 ## Requirements
 - Bash
